@@ -38,11 +38,12 @@
   h1{font-size:clamp(36px,6vw,68px);margin:0 0 18px}
   .muted{color:var(--muted)}
   .chart-wrap{position:relative;min-height:280px;border-radius:18px;background:rgba(5,16,11,.38);border:1px solid rgba(255,255,255,.07);overflow:hidden}.media-placeholder{padding:0;min-height:280px}
-.section-image{width:100%;height:100%;min-height:280px;display:block;object-fit:cover}
-.media-placeholder .overlay{pointer-events:none}
-.media-placeholder .overlay:has(+ .section-image){display:none}
+  .section-image{width:100%;height:100%;min-height:280px;display:block;object-fit:cover}
+  .media-placeholder .overlay{pointer-events:none}
+  .media-placeholder .overlay:has(+ .section-image){display:none}
 
-  .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+  /* Esconder overlay por padrão — será mostrado apenas quando onerror disparar para imagens */
+  .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center}
   .note{background:rgba(10,27,18,.86);border:1px solid var(--line);padding:13px 17px;border-radius:14px;color:var(--muted);text-align:center}
   #videoGallery{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 18px}
   .video-card{flex:0 0 min(76%,390px);min-height:225px;border-radius:20px;position:relative;overflow:hidden;scroll-snap-align:start;border:1px solid rgba(255,255,255,.10);background:linear-gradient(180deg,transparent 20%,rgba(0,0,0,.9)),linear-gradient(135deg,#153c27,#102b3a);display:flex;align-items:flex-end;cursor:pointer;transition:transform .25s}
@@ -55,14 +56,19 @@
   .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.75);z-index:2000;padding:20px}
   .modal.open{display:flex}
   .modal .box{width:min(1100px,96%);max-height:90vh;background:#000;border-radius:12px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
-  .modal video,.modal img{width:100%;height:100%;object-fit:contain;display:block}
-  .modal .close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.06);border:none;color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
+  .modal video,.modal img{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+  .modal .close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.06);border:none;color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer;z-index:6}
+  .modal .msg{position:absolute;left:0;right:0;bottom:12px;margin:0 auto;text-align:center;color:#fff;z-index:6}
   /* Chat */
   .chat.card{background:rgba(5,16,11,.35);box-shadow:none;padding:14px}
   #chatBox{height:300px;overflow:auto;padding:10px;border-radius:16px;background:rgba(0,0,0,.18);border:1px solid var(--line)}
   .chat-msg{padding:11px;border-radius:13px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.06);margin-bottom:8px}
+  .chat-msg .author{font-weight:700}
+  .chat-meta{font-size:12px;color:var(--muted);margin-top:6px}
   input[type=text]{padding:11px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.18);color:#fff}
   .btn{background:linear-gradient(135deg,#69e28b,#39b86a);color:#062010;border:none;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:800}
+  .chat-controls{display:flex;gap:8px;align-items:center}
+  .status-pill{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);font-size:13px}
   @media(max-width:980px){main{padding-top:105px}}
   </style>
 </head>
@@ -91,6 +97,7 @@
       <div style="display:grid;grid-template-columns:1fr 320px;gap:12px">
         <div class="card chart-wrap media-placeholder">
           <img src="reciclagem.png" alt="Imagem sobre reciclagem" class="section-image"
+               onload="this.nextElementSibling.style.display='none';"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="overlay"><div class="note">Adicione sua imagem em <strong>reciclagem.png</strong></div></div>
         </div>
@@ -105,11 +112,13 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="card chart-wrap media-placeholder">
           <img src="lixo.png" alt="Imagem sobre resíduos" class="section-image"
+               onload="this.nextElementSibling.style.display='none';"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="overlay"><div class="note">Adicione sua imagem em <strong>lixo.png</strong></div></div>
         </div>
         <div class="card chart-wrap media-placeholder">
           <img src="poluicao.png" alt="Imagem sobre poluição" class="section-image"
+               onload="this.nextElementSibling.style.display='none';"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="overlay"><div class="note">Adicione sua imagem em <strong>poluicao.png</strong></div></div>
         </div>
@@ -128,28 +137,19 @@
           </div>
           <p class="muted" style="margin-top:0">Mídia totalmente local. Edite este bloco no HTML e adicione seus próprios textos, imagens e vídeos.</p>
           <div id="videoGallery" style="margin-top:12px">
-            <!--
-              ADICIONE SUAS MÍDIAS AQUI.
-              Não existe Firebase/Firestore nesta galeria.
-
-              Vídeo:
-              <div class="video-card" data-media-type="video" data-media-src="video.mp4" data-media-title="Meu vídeo">
-                <img src="capa.png" alt="Meu vídeo">
-                <div>Meu vídeo</div>
-              </div>
-
-              Imagem:
-              <div class="video-card" data-media-type="image" data-media-src="imagem.png" data-media-title="Minha imagem">
-                <img src="imagem.png" alt="Minha imagem">
-                <div>Minha imagem</div>
-              </div>
-            -->
+            <!-- Exemplo: cartão de vídeo. Se capa faltar, não mostra "Mídia ausente" porque é vídeo -->
             <div class="video-card" data-media-type="video" data-media-src="ifa.mp4" data-media-title="IFA — Institucional">
-              <img src="ifa.png" alt="IFA — Institucional">
+              <img src="ifa.png" alt="IFA — Institucional"
+                   onload="this.style.display='block';"
+                   onerror="this.style.display='none'; (function(){ const card=this.closest('.video-card'); if(card && card.dataset.mediaType==='image'){ card.querySelector('div').textContent='Mídia ausente'; } }).call(this);">
               <div>IFA — Institucional</div>
             </div>
+
+            <!-- Exemplo: imagem (se faltar capa, mostra 'Mídia ausente') -->
             <div class="video-card" data-media-type="image" data-media-src="xanxere.png" data-media-title="Xanxerê">
-              <img src="xanxere.png" alt="Xanxerê">
+              <img src="xanxere.png" alt="Xanxerê"
+                   onload="this.style.display='block'; this.nextElementSibling && (this.nextElementSibling.style.display='none');"
+                   onerror="this.style.display='none'; this.closest('.video-card').querySelector('div').textContent='Mídia ausente';">
               <div>Xanxerê</div>
             </div>
           </div>
@@ -158,13 +158,21 @@
         <aside>
           <h3>Chat Comunitário</h3>
           <div class="chat card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <div style="display:flex;gap:8px;align-items:center">
+                <div id="chatStatus" class="status-pill">Carregando chat...</div>
+                <button id="clearChat" class="btn" style="background:#d9534f;color:#fff;padding:6px 10px;font-weight:600">Limpar histórico</button>
+              </div>
+            </div>
+
             <div id="chatBox" aria-live="polite"></div>
-            <div style="display:flex;gap:8px;margin-top:8px">
+
+            <div style="display:flex;gap:8px;margin-top:8px" class="chat-controls">
               <input id="displayName" type="text" placeholder="Seu nome (opcional)" style="width:140px"/>
               <input id="messageInput" type="text" placeholder="Mensagem pública" style="flex:1"/>
               <button id="sendBtn" class="btn">Enviar</button>
             </div>
-            <div class="muted" style="margin-top:8px">Mensagens públicas. Evite dados sensíveis. O Firebase é usado somente para o chat.</div>
+            <div class="muted" id="chatNote" style="margin-top:8px">Mensagens públicas. Evite dados sensíveis. O Firebase é usado somente para o chat (se disponível).</div>
           </div>
         </aside>
       </div>
@@ -181,61 +189,112 @@
     </div>
   </footer>
 
-  <!-- Modal para mostrar imagem / reproduzir vídeo -->
+  <!-- Modal -->
   <div id="mediaModal" class="modal" aria-hidden="true">
     <div class="box" role="document">
       <button class="close" id="modalClose" aria-label="Fechar">✕</button>
-      <video id="mediaPlayer" controls playsinline style="display:none;background:#000"></video>
-      <img id="mediaImage" alt="" style="display:none">
+      <video id="mediaPlayer" controls playsinline style="display:none;background:#000;max-height:90vh;"></video>
+      <img id="mediaImage" alt="" style="display:none;max-height:90vh;">
+      <div id="mediaMessage" class="msg" style="display:none;"></div>
     </div>
   </div>
 
   <script type="module">
-    import firebaseApp from './firebase-app.js';
-    firebaseApp.initFirebase(undefined, { enableAnalytics:false, signInAnon:false });
+    // Tenta carregar firebase-app.js dinamicamente. Se não existir, seguimos com fallback de chat local.
+    let firebaseApp = null;
+    (async function loadFirebaseApp(){
+      try{
+        const mod = await import('./firebase-app.js');
+        firebaseApp = mod.default || mod;
+        if(firebaseApp && typeof firebaseApp.initFirebase === 'function') {
+          firebaseApp.initFirebase(undefined, { enableAnalytics:false, signInAnon:false });
+        }
+      }catch(e){
+        console.warn('Firebase app não carregou (fallback local):', e);
+        firebaseApp = null;
+      }
+    })();
 
-    // ---------------- CONTEÚDO DO SITE (edite aqui manualmente) ----------------
+    // ---------- SITE DATA ----------
     const SITE_DATA = {
-      reciclagem: [
-        { label: '2024', value: 18.4 },
-        { label: '2025', value: 22.7 },
-        { label: '2026', value: 28.3 }
-      ],
-      residuos: [
-        { label: 'Residencial (m³/ano)', value: 125000 },
-        { label: 'Industrial (m³/ano)', value: 48000 }
-      ],
-      poluicoes: [
-        { label: 'Jan', value: 32 }, { label: 'Fev', value: 28 }, { label: 'Mar', value: 35 }
-      ],
       noticias: [
         { title: 'Programa de Desenvolvimento Sustentável — Relatório 2026', summary: 'Resumo e links para atas de audiência pública.', thumbUrl: 'ifa.png', url: '#' }
       ]
     };
 
-    // ---------------- Chat (Firestore) - unchanged behavior ----------------
-    const RATE_LIMIT_KEY = 'chat_rate'; const RATE_LIMIT_MAX = 5; const RATE_LIMIT_WINDOW_MS = 60*1000;
+    // ---------- UTIL ----------
+    function formatTime(ts){
+      const d = new Date(ts);
+      return d.toLocaleString();
+    }
+
+    // ---------- CHAT (com fallback local) ----------
+    const RATE_LIMIT_KEY = 'chat_rate';
+    const RATE_LIMIT_MAX = 10;
+    const RATE_LIMIT_WINDOW_MS = 60*1000;
+
     function canSendMessage(){ try{ const s=JSON.parse(localStorage.getItem(RATE_LIMIT_KEY) || '{"times":[]}'); const now=Date.now(); s.times = s.times.filter(t => (now - t) < RATE_LIMIT_WINDOW_MS); if(s.times.length >= RATE_LIMIT_MAX) return false; s.times.push(now); localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(s)); return true;}catch(e){return true;} }
-    function isAllowedMessage(text){ if(!text) return false; const t=text.toLowerCase(); if(t.length>1000) return false; const block=['http://','https://','<script','spam','buy now']; return !block.some(b=>t.includes(b)); }
+    function isAllowedMessage(text){ if(!text) return false; const t=text.toLowerCase(); if(t.length>2000) return false; const block=['<script','spam','buy now']; return !block.some(b=>t.includes(b)); }
 
     (async function initChat(){
       const chatBox = document.getElementById('chatBox');
       const sendBtn = document.getElementById('sendBtn');
       const msgInput = document.getElementById('messageInput');
       const nameInput = document.getElementById('displayName');
+      const chatStatus = document.getElementById('chatStatus');
+      const chatNote = document.getElementById('chatNote');
+      const clearBtn = document.getElementById('clearChat');
 
-      async function ensureAuth(){
-        try{ await firebaseApp.signInAnonymouslyIfNeeded(); return true; } catch(e){ console.warn('Auth anon falhou', e); return false; }
-      }
+      const LS_CHAT_KEY = 'local_chat_messages_xanxere_v2';
 
       function renderMessages(msgs){
-        chatBox.innerHTML=''; msgs.forEach(m=>{ const el=document.createElement('div'); el.className='chat-msg'; const a=document.createElement('div'); a.style.fontWeight='700'; a.textContent=m.author||'Visitante'; const t=document.createElement('div'); t.textContent=m.text||''; const time=document.createElement('div'); time.style.fontSize='12px'; time.style.color='var(--muted)'; const d = m.createdAt && m.createdAt.toDate ? m.createdAt.toDate() : (m.createdAt ? new Date(m.createdAt.seconds*1000) : null); time.textContent = d ? d.toLocaleString() : ''; el.appendChild(a); el.appendChild(t); el.appendChild(time); chatBox.appendChild(el); });
+        chatBox.innerHTML='';
+        msgs.slice(-500).forEach(m=>{
+          const el=document.createElement('div'); el.className='chat-msg';
+          const a=document.createElement('div'); a.className='author'; a.textContent=m.author||'Visitante';
+          const t=document.createElement('div'); t.textContent=m.text||'';
+          const time=document.createElement('div'); time.className='chat-meta'; time.textContent = m.createdAt ? formatTime(m.createdAt) : '';
+          el.appendChild(a); el.appendChild(t); el.appendChild(time); chatBox.appendChild(el);
+        });
         chatBox.scrollTop = chatBox.scrollHeight;
       }
 
+      function loadLocalMessages(){ try{ const arr = JSON.parse(localStorage.getItem(LS_CHAT_KEY) || '[]'); return Array.isArray(arr) ? arr : []; }catch(e){ return []; } }
+      function saveLocalMessage(msg){ const arr = loadLocalMessages(); arr.push(msg); localStorage.setItem(LS_CHAT_KEY, JSON.stringify(arr)); renderMessages(arr); }
+
+      window.addEventListener('storage', (ev)=>{
+        if(ev.key === LS_CHAT_KEY || ev.key === 'local_chat_update_token') renderMessages(loadLocalMessages());
+      });
+
+      async function ensureAuth(){
+        if(!firebaseApp) return false;
+        try{ await firebaseApp.signInAnonymouslyIfNeeded(); return true; } catch(e){ console.warn('Auth anon falhou', e); return false; }
+      }
+
       const authOk = await ensureAuth();
-      if(authOk){ firebaseApp.listenChat({ municipio:'xanxere', onUpdate: renderMessages, limitSize: 300 }); }
-      else { chatBox.innerHTML = '<div class="muted">Chat indisponível: ative Autenticação Anônima no Firebase Console.</div>'; }
+      if(authOk && firebaseApp && firebaseApp.listenChat){
+        try{
+          firebaseApp.listenChat({ municipio:'xanxere', onUpdate: renderMessages, limitSize: 500 });
+          chatStatus.textContent = 'Chat: Firebase (em tempo real)';
+          chatNote.textContent = 'Chat em tempo real via Firebase.';
+        }catch(e){
+          console.warn('listenChat falhou, usando fallback local', e);
+          renderMessages(loadLocalMessages());
+          chatStatus.textContent = 'Chat: local (demo)';
+          chatNote.textContent = 'Chat em modo local (demo) — Firebase indisponível.';
+        }
+      } else {
+        renderMessages(loadLocalMessages());
+        chatStatus.textContent = 'Chat: local (demo)';
+        chatNote.textContent = 'Chat em modo local (demo) — Firebase não disponível.';
+      }
+
+      clearBtn.addEventListener('click', ()=>{
+        if(!confirm('Limpar histórico do chat local? Esta ação afeta somente este navegador.')) return;
+        localStorage.removeItem(LS_CHAT_KEY);
+        localStorage.setItem('local_chat_update_token', Date.now().toString());
+        renderMessages([]);
+      });
 
       sendBtn.addEventListener('click', async ()=>{
         const text = (msgInput.value || '').trim(); if(!text) return;
@@ -244,9 +303,17 @@
         const name = nameInput.value && nameInput.value.trim() ? nameInput.value.trim() : 'Visitante';
         sendBtn.disabled = true;
         try{
-          const ok = await ensureAuth();
-          if(!ok){ alert('Não autenticado — chat indisponível.'); return; }
-          await firebaseApp.sendChatMessage({ municipio:'xanxere', author: name, text });
+          if(firebaseApp && firebaseApp.sendChatMessage){
+            const ok = await ensureAuth();
+            if(ok){
+              await firebaseApp.sendChatMessage({ municipio:'xanxere', author: name, text });
+              msgInput.value = '';
+              return;
+            }
+          }
+          const obj = { author: name, text, createdAt: Date.now() };
+          saveLocalMessage(obj);
+          localStorage.setItem('local_chat_update_token', Date.now().toString());
           msgInput.value = '';
         } catch(err){ console.error('Erro enviar', err); alert('Erro ao enviar mensagem'); }
         finally{ sendBtn.disabled = false; }
@@ -254,22 +321,52 @@
       msgInput?.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); sendBtn.click(); } });
     })();
 
-    // ---------------- Media gallery + modal (100% local/manual) ----------------
+    // ---------- MEDIA GALLERY & MODAL ----------
     const modal = document.getElementById('mediaModal');
     const player = document.getElementById('mediaPlayer');
     const imgView = document.getElementById('mediaImage');
     const modalClose = document.getElementById('modalClose');
+    const mediaMessage = document.getElementById('mediaMessage');
 
-    function openMedia(item){
+    function showMediaMissingMessage(msg){
+      try{ player.pause(); player.src=''; player.style.display='none'; }catch(e){}
+      imgView.style.display = 'none';
+      mediaMessage.textContent = msg;
+      mediaMessage.style.display = 'block';
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+    }
+
+    async function openMedia(item){
       if(!item || !item.url) return;
-      const isVideo = item.type === 'video' || /\\.mp4(?:[?#].*)?$/i.test(item.url);
+      const isVideo = item.type === 'video' || /\.mp4(?:[?#].*)?$/i.test(item.url);
 
+      mediaMessage.style.display = 'none';
       if(isVideo){
         imgView.style.display = 'none';
         player.style.display = 'block';
-        player.src = item.url;
-        player.currentTime = 0;
-        player.play().catch(()=>{});
+        try{
+          player.pause();
+          player.removeAttribute('src');
+          player.src = item.url;
+          player.load();
+          player.currentTime = 0;
+          player.controls = true;
+          await player.play().catch(()=>{ /* autoplay blocked */ });
+
+          // Tenta fullscreen no elemento <video> (resultado do clique do usuário geralmente permite)
+          (async ()=>{
+            try{
+              if(player.requestFullscreen) await player.requestFullscreen();
+              else if(player.webkitEnterFullscreen) player.webkitEnterFullscreen(); // iOS Safari
+              else if(player.webkitRequestFullscreen) await player.webkitRequestFullscreen();
+            }catch(e){ /* ignore */ }
+          })();
+        }catch(e){
+          console.warn('Erro ao abrir vídeo', e);
+          showMediaMissingMessage('Erro ao abrir o vídeo.');
+          return;
+        }
       } else {
         try{ player.pause(); player.src=''; player.style.display='none'; }catch(e){}
         imgView.style.display = 'block';
@@ -284,42 +381,104 @@
     function closeModal(){
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden','true');
-      try{ player.pause(); player.src=''; }catch(e){}
-      imgView.src='';
+      try{ player.pause(); player.src=''; player.style.display='none'; }catch(e){}
+      try{ imgView.src=''; imgView.style.display='none'; }catch(e){}
+      mediaMessage.style.display = 'none';
+      mediaMessage.textContent = '';
+      // sair do fullscreen
+      try{
+        if(document.fullscreenElement || document.webkitIsFullScreen){
+          if(document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+          else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+      }catch(e){}
     }
 
     modalClose?.addEventListener('click', closeModal);
     modal.addEventListener('click', e=>{ if(e.target === modal) closeModal(); });
     document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeModal(); });
 
-    // Os cards de mídia são escritos diretamente no HTML.
-    // Nenhuma mídia usa Firebase ou Firestore.
-    document.querySelectorAll('#videoGallery .video-card').forEach(card=>{
-      const open = ()=>{
-        openMedia({
-          type: card.dataset.mediaType || 'image',
-          url: card.dataset.mediaSrc || '',
-          title: card.dataset.mediaTitle || card.textContent.trim()
+    player.addEventListener('error', ()=>{ showMediaMissingMessage('Erro ao carregar o vídeo. Verifique se o arquivo existe e o servidor retorna o tipo correto.'); });
+
+    async function checkMediaExists(url, typeHint){
+      if(!url) return false;
+      try{
+        // HEAD first (rápido em servidores). Se bloqueado, tentamos GET.
+        const res = await fetch(url, { method: 'HEAD' });
+        if(res && res.ok) return true;
+      }catch(e){}
+      try{
+        const res2 = await fetch(url, { method: 'GET' });
+        if(res2 && res2.ok) return true;
+      }catch(e){}
+
+      // Fallback: tentar carregar metadados (video) ou imagem (Image)
+      if(typeHint === 'video' || /\.mp4(?:[?#].*)?$/i.test(url)){
+        return await new Promise(resolve=>{
+          let settled=false;
+          const v = document.createElement('video');
+          v.preload = 'metadata';
+          const onok = ()=>{ if(!settled){ settled=true; cleanup(); resolve(true); } };
+          const onerr = ()=>{ if(!settled){ settled=true; cleanup(); resolve(false); } };
+          function cleanup(){ v.removeEventListener('loadedmetadata', onok); v.removeEventListener('canplay', onok); v.removeEventListener('error', onerr); try{ v.src=''; }catch(e){} }
+          v.addEventListener('loadedmetadata', onok);
+          v.addEventListener('canplay', onok);
+          v.addEventListener('error', onerr);
+          v.src = url;
+          setTimeout(()=>{ if(!settled){ settled=true; cleanup(); resolve(false); } }, 2500);
         });
+      }
+
+      return await new Promise(resolve=>{
+        let settled=false;
+        const img = new Image();
+        img.onload = ()=>{ if(!settled){ settled=true; resolve(true);} };
+        img.onerror = ()=>{ if(!settled){ settled=true; resolve(false);} };
+        img.src = url;
+        setTimeout(()=>{ if(!settled){ settled=true; resolve(false);} }, 1500);
+      });
+    }
+
+    // Inicializa os cartões (normaliza srcs e liga eventos)
+    document.querySelectorAll('#videoGallery .video-card').forEach(card=>{
+      let raw = card.dataset.mediaSrc || '';
+      if(raw && !raw.match(/^(https?:|\/|\.\/)/)) raw = './' + raw;
+      card.dataset.mediaSrc = raw;
+
+      const open = async ()=>{
+        const url = card.dataset.mediaSrc || '';
+        const type = card.dataset.mediaType || 'image';
+        const title = card.dataset.mediaTitle || card.textContent.trim();
+
+        const exists = await checkMediaExists(url, type);
+        if(!exists){
+          // Se for video mas capa estiver ausente, tentamos abrir o vídeo mesmo assim (já verificamos). Caso vídeo falhe, mostramos mensagem.
+          showMediaMissingMessage('Arquivo não encontrado: ' + url + '. Verifique se o arquivo existe na mesma pasta do index e se o nome respeita maiúsculas/minúsculas.');
+          return;
+        }
+        openMedia({ type, url, title });
       };
+
       card.addEventListener('click', open);
       card.addEventListener('keydown', e=>{ if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
       card.tabIndex = 0;
     });
 
-    (function waitForChartThenInit(){
-      let tries = 20, i = 0;
-      const t = setInterval(()=>{
-        if(window.Chart || ++i > tries){ clearInterval(t); try{ populateCharts(); }catch(e){ console.warn(e); } try{ buildMediaGridFromSiteData(); }catch(e){console.warn(e);} }
-      }, 200);
-    })();
-
+    // Navegação da galeria (prev/next)
     document.getElementById('mediaPrev')?.addEventListener('click', ()=>{
       const g = document.getElementById('videoGallery'); if(g) g.scrollBy({ left: -(g.clientWidth * .78), behavior: 'smooth' });
     });
     document.getElementById('mediaNext')?.addEventListener('click', ()=>{
       const g = document.getElementById('videoGallery'); if(g) g.scrollBy({ left: (g.clientWidth * .78), behavior: 'smooth' });
     });
+
+    // Helper init (para integração eventual com populateCharts/buildMediaGridFromSiteData)
+    (function waitForChartThenInit(){
+      let tries = 20, i = 0;
+      const t = setInterval(()=>{
+        if(window.Chart || ++i > tries){ clearInterval(t); try{ typeof populateCharts === 'function' && populateCharts(); }catch(e){ console.warn(e); } try{ typeof buildMediaGridFromSiteData === 'function' && buildMediaGridFromSiteData(); }catch(e){console.warn(e);} }
+      }, 200);
+    })();
   </script>
 </body>
 </html>
