@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Xanxerê Sustentável — Informativo</title>
+  <meta name="description" content="Portal informativo sobre reciclagem, gestão de resíduos, reflorestamento e indicadores em Xanxerê." />
+  <link rel="icon" type="image/png" href="xanxere.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+  :root{
+    --bg:#07140e; --bg2:#0b2116; --surface:rgba(18,38,27,.82);
+    --surface2:rgba(25,52,37,.78); --text:#f3faf5; --muted:#a7b9ae;
+    --accent:#69e28b; --line:rgba(255,255,255,.10);
+    --max-width:1180px; --radius:24px; --shadow:0 24px 70px rgba(0,0,0,.28);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color:var(--text);background:
+      radial-gradient(circle at 10% 5%,rgba(105,226,139,.16),transparent 28rem),
+      radial-gradient(circle at 90% 15%,rgba(66,185,238,.12),transparent 30rem),
+      linear-gradient(180deg,var(--bg),var(--bg2) 60%,#06110c);
+    min-height:100vh;-webkit-font-smoothing:antialiased;
+  }
+  header{
+    position:fixed;top:14px;left:50%;transform:translateX(-50%);width:calc(100% - 28px);max-width:1180px;
+    padding:13px 16px 13px 20px;background:rgba(8,25,17,.78);backdrop-filter:blur(12px);
+    color:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 16px 50px rgba(0,0,0,.24);
+    z-index:1000;display:flex;align-items:center;gap:20px;
+  }
+  nav{margin-left:auto;display:flex;gap:10px}
+  nav a{color:#dbece0;text-decoration:none;padding:9px 12px;border-radius:11px;font-size:13px}
+  main{max-width:var(--max-width);margin:0 auto;padding:118px 18px 50px;display:grid;gap:22px}
+  .card{background:linear-gradient(145deg,rgba(21,44,31,.88),rgba(9,27,18,.78));border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+  section.card:first-child{min-height:310px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;background:radial-gradient(circle at 84% 20%,rgba(105,226,139,.22),transparent 18rem),linear-gradient(135deg,rgba(25,60,40,.96),rgba(8,27,18,.92))}
+  h1{font-size:clamp(36px,6vw,68px);margin:0 0 18px}
+  .muted{color:var(--muted)}
+  .chart-wrap{position:relative;min-height:280px;border-radius:18px;background:rgba(5,16,11,.38);border:1px solid rgba(255,255,255,.07);overflow:hidden}
+  .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+  .note{background:rgba(10,27,18,.86);border:1px solid var(--line);padding:13px 17px;border-radius:14px;color:var(--muted);text-align:center}
+  #videoGallery{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 18px}
+  .video-card{flex:0 0 min(76%,390px);min-height:225px;border-radius:20px;position:relative;overflow:hidden;scroll-snap-align:start;border:1px solid rgba(255,255,255,.10);background:linear-gradient(180deg,transparent 20%,rgba(0,0,0,.9)),linear-gradient(135deg,#153c27,#102b3a);display:flex;align-items:flex-end;cursor:pointer;transition:transform .25s}
+  .video-card:before{content:"▶";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;display:grid;place-items:center;padding-left:3px;background:rgba(105,226,139,.92);color:#082011}
+  .video-card>div{position:relative;z-index:2;padding:18px;font-weight:700}
+  /* Modal */
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.75);z-index:2000;padding:20px}
+  .modal.open{display:flex}
+  .modal .box{width:min(1100px,96%);max-height:90vh;background:#000;border-radius:12px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+  .modal video,.modal img{width:100%;height:100%;object-fit:contain;display:block}
+  .modal .close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.06);border:none;color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
+  /* Chat */
+  .chat.card{background:rgba(5,16,11,.35);box-shadow:none;padding:14px}
+  #chatBox{height:300px;overflow:auto;padding:10px;border-radius:16px;background:rgba(0,0,0,.18);border:1px solid var(--line)}
+  .chat-msg{padding:11px;border-radius:13px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.06);margin-bottom:8px}
+  input[type=text]{padding:11px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.18);color:#fff}
+  .btn{background:linear-gradient(135deg,#69e28b,#39b86a);color:#062010;border:none;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:800}
+  @media(max-width:980px){main{padding-top:105px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div style="font-weight:700;display:flex;align-items:center;gap:10px"><img src="xanxere.png" alt="" style="height:28px;width:28px;border-radius:6px">Xanxerê Sustentável</div>
+    <nav>
+      <a href="#acoes">Ações</a>
+      <a href="#indicadores">Indicadores</a>
+      <a href="#media">Mídia</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="hero-kicker" style="display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(105,226,139,.07);color:#b9f2c8;font-weight:700;margin-bottom:12px">Projeto de educação e sustentabilidade</div>
+      <h1>Preservar o meio ambiente é uma escolha.</h1>
+      <p class="muted">E essa escolha começa com cada um de nós. Um espaço para ações, indicadores e galeria — tudo local.</p>
+      <div style="margin-top:14px;display:flex;gap:10px">
+        <a class="btn" href="#acoes">Explorar ações</a>
+        <a class="btn" href="#indicadores" style="background:transparent;border:1px solid rgba(255,255,255,.06);color:#eaf7ed">Ver indicadores</a>
+      </div>
+    </section>
+
+    <section id="acoes" class="card">
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:12px">
+        <div class="card chart-wrap" style="position:relative">
+          <canvas id="chartReciclagem"></canvas>
+          <div id="ovReciclagem" class="overlay"><div class="note">Aguardando dados de reciclagem — adicione valores manualmente em SITE_DATA</div></div>
+        </div>
+        <aside class="card">
+          <strong>Como participar</strong>
+          <p class="muted">Separe resíduos, leve a pontos de coleta e participe de campanhas locais.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="indicadores" class="card">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="card chart-wrap"><canvas id="chartLixo"></canvas><div id="ovLixo" class="overlay"><div class="note">Aguardando dados</div></div></div>
+        <div class="card chart-wrap"><canvas id="chartPoluicoes"></canvas><div id="ovPoluicoes" class="overlay"><div class="note">Aguardando dados</div></div></div>
+      </div>
+    </section>
+
+    <section id="media" class="card">
+      <div style="display:grid;grid-template-columns:1fr 360px;gap:12px">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div><div style="font-size:11px;color:#b9f2c8;text-transform:uppercase;font-weight:800">Galeria</div><h3 style="margin:6px 0">Imagens & Vídeos</h3></div>
+            <div style="display:flex;gap:8px">
+              <button id="mediaPrev" aria-label="Anterior" style="width:34px">←</button>
+              <button id="mediaNext" aria-label="Próximo" style="width:34px">→</button>
+            </div>
+          </div>
+          <p class="muted" style="margin-top:0">Os arquivos abaixo são locais — coloque <strong>ifa.mp4</strong>, <strong>ifa.png</strong>, <strong>imagem.png</strong>, <strong>video.mp4</strong> e <strong>xanxere.png</strong> no mesmo diretório do HTML.</p>
+          <div id="videoGallery" style="margin-top:12px"></div>
+        </div>
+
+        <aside>
+          <h3>Chat Comunitário</h3>
+          <div class="chat card">
+            <div id="chatBox" aria-live="polite"></div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <input id="displayName" type="text" placeholder="Seu nome (opcional)" style="width:140px"/>
+              <input id="messageInput" type="text" placeholder="Mensagem pública" style="flex:1"/>
+              <button id="sendBtn" class="btn">Enviar</button>
+            </div>
+            <div class="muted" style="margin-top:8px">Mensagens públicas. Evite dados sensíveis. Autenticação anônima usada — habilite no Firebase Console.</div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer style="max-width:var(--max-width);margin:0 auto;padding:18px">
+    <div class="card footer-card" style="text-align:center">
+      <div style="font-weight:800;color:#eef9f1">Xanxerê Sustentável</div>
+      <div style="color:var(--muted);margin-top:6px">Educação • Sustentabilidade • Comunidade</div>
+      <div style="margin-top:14px;color:var(--muted);font-size:13px">
+        Projeto desenvolvido por Janio Victor, Gabriela Castanha e Vitoria
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal para mostrar imagem / reproduzir vídeo -->
+  <div id="mediaModal" class="modal" aria-hidden="true">
+    <div class="box" role="document">
+      <button class="close" id="modalClose" aria-label="Fechar">✕</button>
+      <video id="mediaPlayer" controls playsinline style="display:none;background:#000"></video>
+      <img id="mediaImage" alt="" style="display:none">
+    </div>
+  </div>
+
+  <!-- Chart.js -->
+  <script>
+    (function loadChart(){
+      const cdn = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+      const local = './vendor/chart.umd.min.js';
+      function append(src){ return new Promise((r,re)=>{ const s=document.createElement('script'); s.src=src; s.async=true; s.onload=r; s.onerror=re; document.head.appendChild(s); }); }
+      append(cdn).catch(()=>append(local).catch(()=>console.warn('Chart.js não carregou.')));
+    })();
+  </script>
+
+  <script type="module">
+    import firebaseApp from './firebase-app.js';
+    firebaseApp.initFirebase(undefined, { enableAnalytics:false, signInAnon:false });
+
+    // ---------------- SITE_DATA EMBUTIDO (edite aqui manualmente) ----------------
+    const SITE_DATA = {
+      reciclagem: [
+        { label: '2024', value: 18.4 },
+        { label: '2025', value: 22.7 },
+        { label: '2026', value: 28.3 }
+      ],
+      residuos: [
+        { label: 'Residencial (m³/ano)', value: 125000 },
+        { label: 'Industrial (m³/ano)', value: 48000 }
+      ],
+      poluicoes: [
+        { label: 'Jan', value: 32 }, { label: 'Fev', value: 28 }, { label: 'Mar', value: 35 }
+      ],
+      noticias: [
+        { title: 'Programa de Desenvolvimento Sustentável — Relatório 2026', summary: 'Resumo e links para atas de audiência pública.', thumbUrl: 'ifa.png', url: '#' }
+      ],
+      videos: [
+        { title: 'IFA — Institucional', videoUrl: 'ifa.mp4', thumbUrl: 'ifa.png' },
+        { title: 'Vídeo Exemplo', videoUrl: 'video.mp4', thumbUrl: '' }
+      ],
+      images: [
+        { title: 'Logomarca', url: 'xanxere.png', thumbUrl: 'xanxere.png' },
+        { title: 'Foto Exemplo', url: 'imagem.png', thumbUrl: 'imagem.png' }
+      ]
+    };
+
+    // ---------------- Chat (Firestore) - unchanged behavior ----------------
+    const RATE_LIMIT_KEY = 'chat_rate'; const RATE_LIMIT_MAX = 5; const RATE_LIMIT_WINDOW_MS = 60*1000;
+    function canSendMessage(){ try{ const s=JSON.parse(localStorage.getItem(RATE_LIMIT_KEY) || '{"times":[]}'); const now=Date.now(); s.times = s.times.filter(t => (now - t) < RATE_LIMIT_WINDOW_MS); if(s.times.length >= RATE_LIMIT_MAX) return false; s.times.push(now); localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(s)); return true;}catch(e){return true;} }
+    function isAllowedMessage(text){ if(!text) return false; const t=text.toLowerCase(); if(t.length>1000) return false; const block=['http://','https://','<script','spam','buy now']; return !block.some(b=>t.includes(b)); }
+
+    (async function initChat(){
+      const chatBox = document.getElementById('chatBox');
+      const sendBtn = document.getElementById('sendBtn');
+      const msgInput = document.getElementById('messageInput');
+      const nameInput = document.getElementById('displayName');
+
+      async function ensureAuth(){
+        try{ await firebaseApp.signInAnonymouslyIfNeeded(); return true; } catch(e){ console.warn('Auth anon falhou', e); return false; }
+      }
+
+      function renderMessages(msgs){
+        chatBox.innerHTML=''; msgs.forEach(m=>{ const el=document.createElement('div'); el.className='chat-msg'; const a=document.createElement('div'); a.style.fontWeight='700'; a.textContent=m.author||'Visitante'; const t=document.createElement('div'); t.textContent=m.text||''; const time=document.createElement('div'); time.style.fontSize='12px'; time.style.color='var(--muted)'; const d = m.createdAt && m.createdAt.toDate ? m.createdAt.toDate() : (m.createdAt ? new Date(m.createdAt.seconds*1000) : null); time.textContent = d ? d.toLocaleString() : ''; el.appendChild(a); el.appendChild(t); el.appendChild(time); chatBox.appendChild(el); });
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      const authOk = await ensureAuth();
+      if(authOk){ firebaseApp.listenChat({ municipio:'xanxere', onUpdate: renderMessages, limitSize: 300 }); }
+      else { chatBox.innerHTML = '<div class="muted">Chat indisponível: ative Autenticação Anônima no Firebase Console.</div>'; }
+
+      sendBtn.addEventListener('click', async ()=>{
+        const text = (msgInput.value || '').trim(); if(!text) return;
+        if(!isAllowedMessage(text)){ alert('Mensagem bloqueada por política.'); return; }
+        if(!canSendMessage()){ alert('Você enviou muitas mensagens. Aguarde.'); return; }
+        const name = nameInput.value && nameInput.value.trim() ? nameInput.value.trim() : 'Visitante';
+        sendBtn.disabled = true;
+        try{
+          const ok = await ensureAuth();
+          if(!ok){ alert('Não autenticado — chat indisponível.'); return; }
+          await firebaseApp.sendChatMessage({ municipio:'xanxere', author: name, text });
+          msgInput.value = '';
+        } catch(err){ console.error('Erro enviar', err); alert('Erro ao enviar mensagem'); }
+        finally{ sendBtn.disabled = false; }
+      });
+      msgInput?.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); sendBtn.click(); } });
+    })();
+
+    // ---------------- Media gallery + modal (local files only) ----------------
+    const modal = document.getElementById('mediaModal');
+    const player = document.getElementById('mediaPlayer');
+    const imgView = document.getElementById('mediaImage');
+    const modalClose = document.getElementById('modalClose');
+
+    function openMedia(item){
+      if(!item || !item.url) return;
+      const url = item.url;
+      if(url.endsWith('.mp4') || url.includes('.mp4')){
+        imgView.style.display = 'none';
+        player.style.display = 'block';
+        player.src = url;
+        player.currentTime = 0;
+        player.play().catch(()=>{}); // may be blocked by autoplay policy
+      } else {
+        try{ player.pause(); player.src=''; player.style.display='none'; }catch(e){}
+        imgView.style.display = 'block';
+        imgView.src = url;
+        imgView.alt = item.title || '';
+      }
+      modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+    }
+    function closeModal(){
+      modal.classList.remove('open'); modal.setAttribute('aria-hidden','true');
+      try{ player.pause(); player.src = ''; }catch(e){}
+      imgView.src = '';
+    }
+    modalClose?.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeModal(); });
+
+    function buildMediaGridFromSiteData(){
+      const videoGallery = document.getElementById('videoGallery');
+      videoGallery.innerHTML = '';
+      const videos = Array.isArray(SITE_DATA.videos) ? SITE_DATA.videos.map(v => ({ type:'video', title: v.title, url: v.videoUrl || v.url || '' , thumb: v.thumbUrl || '' })) : [];
+      const images = Array.isArray(SITE_DATA.images) ? SITE_DATA.images.map(i => ({ type:'image', title:i.title, url: i.url || '' , thumb: i.thumbUrl || '' })) : [];
+      const ifaUrl = 'ifa.mp4';
+      const ifaPresent = videos.some(v => (v.url||'').includes('ifa.mp4')) || images.some(i => (i.url||'').includes('ifa.mp4'));
+      if(!ifaPresent){
+        videos.unshift({ type:'video', title:'IFA — Institucional', url: ifaUrl, thumb: 'ifa.png' });
+      }
+      const items = [...videos, ...images];
+      if(items.length === 0){
+        videoGallery.innerHTML = '<div class="note">Adicione localmente imagens e vídeos em SITE_DATA dentro deste arquivo HTML (use nomes de arquivo já commitados).</div>';
+        return;
+      }
+      items.forEach((it, idx) => {
+        const card = document.createElement('div'); card.className = 'video-card'; card.tabIndex = 0;
+        const bg = it.thumb || (it.type==='image' ? it.url : '');
+        if(bg) { card.style.backgroundImage = `linear-gradient(180deg,transparent 25%,rgba(0,0,0,.9)),url("${bg}")`; card.style.backgroundSize='cover'; card.style.backgroundPosition='center'; }
+        const title = document.createElement('div'); title.textContent = it.title || (it.type + ' ' + (idx+1));
+        card.appendChild(title);
+        card.addEventListener('click', ()=> openMedia({ url: it.url, title: it.title }));
+        card.addEventListener('keydown', e=> { if(e.key==='Enter') openMedia({ url: it.url, title: it.title }); });
+        videoGallery.appendChild(card);
+      });
+    }
+
+    function numberOrZero(v){ return (typeof v === 'number' && Number.isFinite(v)) ? v : 0; }
+    function populateCharts(){
+      const data = SITE_DATA || {};
+      if(window.Chart){
+        if(Array.isArray(data.reciclagem) && data.reciclagem.length){
+          document.getElementById('ovReciclagem').style.display='none';
+          const ctx = document.getElementById('chartReciclagem').getContext('2d');
+          new Chart(ctx, { type:'bar', data:{ labels: data.reciclagem.map(d=>d.label), datasets:[{ label:'Taxa de Reciclagem (%)', data: data.reciclagem.map(d=>numberOrZero(d.value)), backgroundColor:'#2f8f4a' }]}, options:{responsive:true,maintainAspectRatio:false} });
+        }
+        const residuos = data.residuos || [];
+        if(Array.isArray(residuos) && residuos.length){
+          document.getElementById('ovLixo').style.display='none';
+          const ctx = document.getElementById('chartLixo').getContext('2d');
+          new Chart(ctx, { type:'doughnut', data:{ labels: residuos.map(d=>d.label), datasets:[{ data: residuos.map(d=>numberOrZero(d.value)), backgroundColor:['#70bf7a','#f6d365','#6b4f3a'] }]}, options:{responsive:true,maintainAspectRatio:false} });
+        }
+        if(Array.isArray(data.poluicoes) && data.poluicoes.length){
+          document.getElementById('ovPoluicoes').style.display='none';
+          const ctx = document.getElementById('chartPoluicoes').getContext('2d');
+          new Chart(ctx, { type:'line', data:{ labels: data.poluicoes.map(d=>d.label), datasets:[{ label:'Índice de Poluição', data: data.poluicoes.map(d=>numberOrZero(d.value)), borderColor:'#d9534f', backgroundColor:'rgba(217,83,79,0.08)', tension:0.3 }]}, options:{responsive:true,maintainAspectRatio:false} });
+        }
+      }
+    }
+
+    (function waitForChartThenInit(){
+      let tries = 20, i = 0;
+      const t = setInterval(()=>{
+        if(window.Chart || ++i > tries){ clearInterval(t); try{ populateCharts(); }catch(e){ console.warn(e); } try{ buildMediaGridFromSiteData(); }catch(e){console.warn(e);} }
+      }, 200);
+    })();
+
+    document.getElementById('mediaPrev')?.addEventListener('click', ()=>{
+      const g = document.getElementById('videoGallery'); if(g) g.scrollBy({ left: -(g.clientWidth * .78), behavior: 'smooth' });
+    });
+    document.getElementById('mediaNext')?.addEventListener('click', ()=>{
+      const g = document.getElementById('videoGallery'); if(g) g.scrollBy({ left: (g.clientWidth * .78), behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>
