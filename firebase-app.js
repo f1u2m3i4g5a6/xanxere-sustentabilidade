@@ -1,111 +1,133 @@
-// firebase-app.js
-// Minimal Firebase helper (modular v9+) — pronto para uso com seu projeto.
-// Coloque este arquivo ao lado do index.html.
+// firebase-app.js (compat global)
+// Coloque ao lado do index.html. Usa Firebase v9 compat builds via CDN e expõe window.firebaseApp
+(function(window){
+  'use strict';
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, limit, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+  // sua config (já preenchida)
+  var firebaseConfig = {
+    apiKey: "AIzaSyDD33nsm-Jk3vZt3pSxV6zBZDrWC8qWCp4",
+    authDomain: "xanxwer.firebaseapp.com",
+    projectId: "xanxwer",
+    storageBucket: "xanxwer.firebasestorage.app",
+    messagingSenderId: "788787150303",
+    appId: "1:788787150303:web:ac6dd538fe8a925ad7d86a",
+    measurementId: "G-JYV9PW3BKN"
+  };
 
-let app = null;
-let auth = null;
-let db = null;
+  var COMPAT_BASE = 'https://www.gstatic.com/firebasejs/9.22.1/';
+  var scriptsLoaded = false;
+  var inited = false;
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDD33nsm-Jk3vZt3pSxV6zBZDrWC8qWCp4",
-  authDomain: "xanxwer.firebaseapp.com",
-  projectId: "xanxwer",
-  storageBucket: "xanxwer.firebasestorage.app",
-  messagingSenderId: "788787150303",
-  appId: "1:788787150303:web:ac6dd538fe8a925ad7d86a",
-  measurementId: "G-JYV9PW3BKN"
-};
+  function loadScript(src){
+    return new Promise(function(resolve, reject){
+      var s = document.createElement('script');
+      s.src = src;
+      s.async = true;
+      s.onload = function(){ resolve(); };
+      s.onerror = function(e){ reject(new Error('Erro carregar ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
 
-export default {
-  initFirebase(customConfig = null){
-    const cfg = customConfig || firebaseConfig;
-    if (!app) {
-      app = initializeApp(cfg);
-      auth = getAuth(app);
-      db = getFirestore(app);
-    }
-    return { app, auth, db };
-  },
+  async function ensureCompatSdk(){
+    if(scriptsLoaded) return;
+    // Load compat builds (namespaced firebase global)
+    await loadScript(COMPAT_BASE + 'firebase-app-compat.js');
+    await loadScript(COMPAT_BASE + 'firebase-auth-compat.js');
+    await loadScript(COMPAT_BASE + 'firebase-firestore-compat.js');
+    scriptsLoaded = true;
+  }
 
-  async signInAnonymouslyIfNeeded(){
-    if(!auth) throw new Error("Firebase não inicializado");
-    return new Promise((resolve, reject)=>{
-      const unsub = onAuthStateChanged(auth, async (user) => {
+  function initFirebase(customConfig){
+    if(inited) return { app: firebase.app(), auth: firebase.auth(), db: firebase.firestore() };
+    return ensureCompatSdk().then(function(){
+      var cfg = customConfig || firebaseConfig;
+      if(!firebase.apps || !firebase.apps.length){
+        firebase.initializeApp(cfg);
+      }
+      inited = true;
+      return { app: firebase.app(), auth: firebase.auth(), db: firebase.firestore() };
+    });
+  }
+
+  function signInAnonymouslyIfNeeded(){
+    return new Promise(function(resolve, reject){
+      if(!inited) return reject(new Error('Firebase não inicializado'));
+      var unsub = firebase.auth().onAuthStateChanged(function(user){
         unsub();
-        if(user){
-          resolve(user);
-          return;
-        }
-        try{
-          const res = await signInAnonymously(auth);
-          resolve(res.user);
-        }catch(err){
-          reject(err);
-        }
+        if(user) return resolve(user);
+        firebase.auth().signInAnonymously().then(function(res){ resolve(res.user); }).catch(reject);
       }, reject);
     });
-  },
+  }
 
-  // Define display name no profile do auth e salva no documento users/{uid}
-  async setDisplayName(name){
-    if(!auth) throw new Error("Firebase não inicializado");
-    const user = auth.currentUser;
-    if(!user) throw new Error("Usuário não autenticado");
-    try{
-      await updateProfile(user, { displayName: name });
-    }catch(e){
-      console.warn('updateProfile falhou', e);
-    }
-    try{
-      const udoc = doc(getFirestore(), 'users', user.uid);
-      await setDoc(udoc, { name, updatedAt: serverTimestamp() }, { merge: true });
-    }catch(e){
-      console.warn('Erro salvando users doc', e);
-    }
-    return true;
-  },
-
-  // Envia mensagem para 'chats' (inclui uid)
-  async sendChatMessage({ municipio='xanxere', author='Visitante', text='' } = {}){
-    if(!db) throw new Error("Firestore não inicializado");
-    const uid = auth && auth.currentUser ? auth.currentUser.uid : null;
-    const colRef = collection(db, 'chats');
-    const docRef = await addDoc(colRef, {
-      municipio,
-      author,
-      text,
-      uid,
-      createdAt: serverTimestamp()
+  function setDisplayName(name){
+    return new Promise(function(resolve, reject){
+      if(!inited) return reject(new Error('Firebase não inicializado'));
+      var user = firebase.auth().currentUser;
+      if(!user) return reject(new Error('Usuário não autenticado'));
+      user.updateProfile({ displayName: name }).catch(function(e){ console.warn('updateProfile falhou', e); })
+      .finally(function(){
+        var udoc = firebase.firestore().collection('users').doc(user.uid);
+        udoc.set({ name: name, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
+          .then(function(){ resolve(true); })
+          .catch(function(err){ console.warn('Erro salvando users doc', err); resolve(true); });
+      });
     });
-    return docRef.id;
-  },
+  }
 
-  // Escuta mensagens em tempo real filtrando por municipio
-  listenChat({ municipio='xanxere', onUpdate = ()=>{}, limitSize = 500 } = {}){
-    if(!db) throw new Error("Firestore não inicializado");
-    const col = collection(db, 'chats');
-    const q = query(col, where('municipio','==', municipio), orderBy('createdAt', 'asc'), limit(limitSize));
-    const unsub = onSnapshot(q, snapshot=>{
-      const out = [];
-      snapshot.forEach(docSnap=>{
-        const d = docSnap.data();
+  function sendChatMessage(opts){
+    opts = opts || {};
+    if(!inited) return Promise.reject(new Error('Firebase não inicializado'));
+    var uid = (firebase.auth().currentUser && firebase.auth().currentUser.uid) ? firebase.auth().currentUser.uid : null;
+    var col = firebase.firestore().collection('chats');
+    return col.add({
+      municipio: opts.municipio || 'xanxere',
+      author: opts.author || 'Visitante',
+      text: opts.text || '',
+      uid: uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(docRef){ return docRef.id; });
+  }
+
+  function listenChat(opts){
+    opts = opts || {};
+    if(!inited) throw new Error('Firebase não inicializado');
+    var municipio = opts.municipio || 'xanxere';
+    var onUpdate = typeof opts.onUpdate === 'function' ? opts.onUpdate : function(){};
+    var limitSize = opts.limitSize || 500;
+    var q = firebase.firestore().collection('chats')
+      .where('municipio','==', municipio)
+      .orderBy('createdAt')
+      .limit(limitSize);
+    var unsub = q.onSnapshot(function(snapshot){
+      var out = [];
+      snapshot.forEach(function(doc){
+        var d = doc.data();
+        var createdAt = Date.now();
+        if(d.createdAt && d.createdAt.toMillis) createdAt = d.createdAt.toMillis();
         out.push({
-          id: docSnap.id,
+          id: doc.id,
           author: d.author,
           text: d.text,
           uid: d.uid || null,
-          createdAt: d.createdAt && d.createdAt.toMillis ? d.createdAt.toMillis() : (d.createdAt ? d.createdAt : Date.now())
+          createdAt: createdAt
         });
       });
       onUpdate(out);
-    }, err=>{
+    }, function(err){
       console.error('listenChat error', err);
       onUpdate([]);
     });
     return unsub;
   }
-};
+
+  // expose global helper
+  window.firebaseApp = {
+    initFirebase: initFirebase,
+    signInAnonymouslyIfNeeded: signInAnonymouslyIfNeeded,
+    setDisplayName: setDisplayName,
+    sendChatMessage: sendChatMessage,
+    listenChat: listenChat
+  };
+})(window);
